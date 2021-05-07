@@ -1,0 +1,45 @@
+.App {
+  border-style: solid;
+}
+
+.letters-container {
+  margin: 16px;
+}
+
+.letters-row:after {
+  clear: both;
+  content: "";
+  display: table;
+}
+
+/* .letters-row-selected {
+  border: red;
+} */
+
+.letters-cell {
+  height: 56px;
+  width: 56px;
+
+  float: left;
+
+  text-align:  center;
+  font-weight: bold;
+  font-size: 34px;
+
+  border: 2px solid black;
+  padding: 4px;
+  margin-right: 1px;
+  margin-top: 1px;
+}
+
+.letters-cell-selected {
+  border-color: lightgreen;
+  background-color: lightgreen;
+}
+
+.display-text {
+  font-size: 40px;
+  margin: 16px;
+  border-style: ridge;
+  min-height: 56px;
+}
