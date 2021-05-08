@@ -3,8 +3,22 @@ import React from "react";
 
 class Cell extends React.Component {
   render() {
-    return <div className="square">{this.props.letter}</div>;
+    return (
+      <div
+        className={
+          this.props.selected
+            ? "letters-cell letters-cell-selected"
+            : "letters-cell"
+        }
+      >
+        {this.props.letter}
+      </div>
+    );
   }
+}
+
+class Board extends React.Component {
+
 }
 
 const LETTERS = [
@@ -37,19 +51,6 @@ class App extends React.Component {
   }
 
   renderSingleLetter(letter, rowIdx, colIdx) {
-    const colSelected = this.state.selectedCol === colIdx;
-    const rowSelected = this.state.selectedRow === rowIdx;
-    return (
-      <div
-        className={
-          colSelected && rowSelected
-            ? "letters-cell letters-cell-selected"
-            : "letters-cell"
-        }
-      >
-        {letter}
-      </div>
-    );
   }
 
   renderLetters() {
@@ -57,8 +58,11 @@ class App extends React.Component {
       // const rowSelected = this.state.selectedRow == rowIdx;
       return (
         <div className={"letters-row"}>
-          {row.map((letter, colIdx) =>
-            this.renderSingleLetter(letter, rowIdx, colIdx)
+          {row.map((letter, colIdx) => {
+            const colSelected = this.state.selectedCol === colIdx;
+            const rowSelected = this.state.selectedRow === rowIdx;
+            return <Cell selected={rowSelected && colSelected} letter={letter} />;
+          }
           )}
         </div>
       );
