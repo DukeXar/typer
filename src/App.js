@@ -106,6 +106,8 @@ class App extends React.Component {
       const inputText = state.inputText.length > 0 ? state.inputText + " " : "";
       return {
         inputText,
+        selectedCol: 0,
+        selectedRow: 0,
       };
     });
   }
@@ -127,7 +129,9 @@ class App extends React.Component {
       const currentLetter = this.state.letters[this.state.selectedRow][this.state.selectedCol];
       const inputText = state.inputText + currentLetter;
       return {
-        inputText
+        inputText,
+        selectedCol: 0,
+        selectedRow: 0,
       };
     })
   }
