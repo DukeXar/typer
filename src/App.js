@@ -126,14 +126,16 @@ class App extends React.Component {
 
   enterLetter() {
     this.setState((state) => {
-      const currentLetter = this.state.letters[this.state.selectedRow][this.state.selectedCol];
+      const currentLetter = this.state.letters[this.state.selectedRow][
+        this.state.selectedCol
+      ];
       const inputText = state.inputText + currentLetter;
       return {
         inputText,
         selectedCol: 0,
         selectedRow: 0,
       };
-    })
+    });
   }
 
   moveDelta(dCol, dRow) {
