@@ -1,5 +1,5 @@
 .App {
-  border-style: solid;
+  width: 100%;
 }
 
 .letters-container {
@@ -17,8 +17,8 @@
 } */
 
 .letters-cell {
-  height: 56px;
-  width: 56px;
+  height: 46px;
+  width: 46px;
 
   float: left;
 
@@ -42,4 +42,6 @@
   margin: 16px;
   border-style: ridge;
   min-height: 56px;
+  height: 56px;
+  /* width: 100%; */
 }

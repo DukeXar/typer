@@ -17,9 +17,7 @@ class Cell extends React.Component {
   }
 }
 
-class Board extends React.Component {
-
-}
+class Board extends React.Component {}
 
 const LETTERS = [
   "АБВГД".split(""),
@@ -37,6 +35,11 @@ class DisplayText extends React.Component {
   }
 }
 
+const MODES = {
+  SELECTING_ROW: "SELECTING_ROW",
+  SELECTING_COL: "SELECTING_COL",
+};
+
 class App extends React.Component {
   constructor(props) {
     super(props);
@@ -45,25 +48,26 @@ class App extends React.Component {
       selectedRow: 0,
       selectedCol: 0,
       inputText: "",
+      mode: MODES.SELECTING_ROW,
     };
-
-    // this.onKeyPress = this.onKeyPress.bind(this);
-  }
-
-  renderSingleLetter(letter, rowIdx, colIdx) {
   }
 
   renderLetters() {
     return this.state.letters.map((row, rowIdx) => {
-      // const rowSelected = this.state.selectedRow == rowIdx;
       return (
         <div className={"letters-row"}>
           {row.map((letter, colIdx) => {
             const colSelected = this.state.selectedCol === colIdx;
             const rowSelected = this.state.selectedRow === rowIdx;
-            return <Cell selected={rowSelected && colSelected} letter={letter} />;
-          }
-          )}
+
+            let cellSelected = false;
+            if (this.state.mode === MODES.SELECTING_ROW) {
+              cellSelected = rowSelected;
+            } else {
+              cellSelected = rowSelected && colSelected;
+            }
+            return <Cell selected={cellSelected} letter={letter} />;
+          })}
         </div>
       );
     });
@@ -91,11 +95,8 @@ class App extends React.Component {
       case "ArrowRight":
         this.moveDelta(1, 0);
         break;
-      case "Space":
-        this.enterLetter();
-        break;
       case "Enter":
-        this.finishWord();
+        this.action();
         break;
       case "Backspace":
         this.backspace();
@@ -104,6 +105,28 @@ class App extends React.Component {
         console.log(`Handling key code="${e.code}"`);
     }
   };
+
+  action() {
+    this.setState((state) => {
+      const mode =
+        state.mode === MODES.SELECTING_ROW
+          ? MODES.SELECTING_COL
+          : MODES.SELECTING_ROW;
+
+      let stateUpdate = { mode };
+
+      if (state.mode === MODES.SELECTING_COL) {
+        const currentLetter = state.letters[state.selectedRow][
+          state.selectedCol
+        ];
+        stateUpdate.inputText = state.inputText + currentLetter;
+        stateUpdate.selectedCol = 0;
+        stateUpdate.selectedRow = 0;
+      }
+
+      return stateUpdate;
+    });
+  }
 
   finishWord() {
     this.setState((state) => {
@@ -128,22 +151,19 @@ class App extends React.Component {
     });
   }
 
-  enterLetter() {
-    this.setState((state) => {
-      const currentLetter = this.state.letters[this.state.selectedRow][
-        this.state.selectedCol
-      ];
-      const inputText = state.inputText + currentLetter;
-      return {
-        inputText,
-        selectedCol: 0,
-        selectedRow: 0,
-      };
-    });
-  }
-
   moveDelta(dCol, dRow) {
     this.setState((state, props) => {
+      if (state.mode === MODES.SELECTING_COL && dRow !== 0) {
+        return {
+          mode: MODES.SELECTING_ROW,
+          selectedCol: 0,
+        }
+      }
+      if (state.mode === MODES.SELECTING_COL) {
+        dRow = 0;
+      } else {
+        dCol = 0;
+      }
       const maxRow = state.letters.length - 1;
       const maxCol = state.letters[state.selectedRow].length - 1;
       const tryCol = Math.min(Math.max(0, state.selectedCol + dCol), maxCol);
