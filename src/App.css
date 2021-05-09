@@ -12,10 +12,6 @@
   display: table;
 }
 
-/* .letters-row-selected {
-  border: red;
-} */
-
 .letters-cell {
   height: 46px;
   width: 46px;
@@ -43,50 +39,67 @@
   border-style: ridge;
   min-height: 56px;
   height: 56px;
-  /* width: 100%; */
 }
 
 .controller {
   border: 1px dotted black;
-  height: calc(36px * 3);
-  width: calc(36px * 3);
+  height: calc(40px * 3);
+  width: calc(40px * 4);
   margin: 16px;
   position: relative;
 }
 
 .control-button {
-  height: 36px;
-  width: 36px;
+  height: 40px;
+  width: 40px;
   text-align: center;
 }
 .control-button-up {
   position: absolute;
-  left: 36px;
+  left: 40px;
   top: 0px;
 }
 .control-button-down {
   position: absolute;
-  left: 36px;
-  top: calc(36px * 2);
+  left: 40px;
+  top: calc(40px * 2);
 }
 .control-button-left {
   position: absolute;
   left: 0px;
-  top: 36px;
+  top: 40px;
 }
 .control-button-right {
   position: absolute;
-  left: calc(36px * 2);
-  top: 36px;
+  left: calc(40px * 2);
+  top: 40px;
 }
 .control-button-center {
   position: absolute;
-  left: 36px;
-  top: 36px;
+  left: 40px;
+  top: 40px;
+}
+.control-button-backspace {
+  position: absolute;
+  left: calc(40px * 3);
+  top: 0px;
+}
+.noselect {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Old versions of Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently
+                                  supported by Chrome, Edge, Opera and Firefox */
 }
 .control-button-inner {
   position: relative;
   text-align: center;
   height: 100%;
   width: 100%;
+  font-size: 32px;
+  padding: 0px;
+  text-decoration: none;
+  border: none;
 }

@@ -1,37 +1,33 @@
 import "./App.css";
 import React from "react";
+import classNames from "classnames";
 
-function Cell({selected, letter}) {
-  return (
-    <div
-      className={
-        selected
-          ? "letters-cell letters-cell-selected"
-          : "letters-cell"
-      }
-    >
-      {letter}
-    </div>
-  );
-
+function Cell({ selected, letter }) {
+  const cls = classNames("noselect", "letters-cell", {
+    "letters-cell-selected": selected,
+  });
+  return <div className={cls}>{letter}</div>;
 }
 
-function ControlButton({kind, onClick, letter}) {
+function ControlButton({ kind, onClick, letter }) {
   return (
-    <div className={`control-button control-button-${kind}`}>
-      <button className="control-button-inner" onClick={onClick}>{letter}</button>
+    <div className={`noselect control-button control-button-${kind}`}>
+      <button className="noselect control-button-inner" onClick={onClick}>
+        {letter}
+      </button>
     </div>
   );
 }
 
-function Controller({onLeft, onRight, onUp, onDown, onCenter}) {
+function Controller({ onLeft, onRight, onUp, onDown, onCenter, onBackspace }) {
   return (
     <div className="controller">
-      <ControlButton kind="left" letter="L" onClick={onLeft} />
-      <ControlButton kind="right" letter="R" onClick={onRight} />
-      <ControlButton kind="up" letter="U" onClick={onUp} />
-      <ControlButton kind="down" letter="D" onClick={onDown} />
-      <ControlButton kind="center" letter="O" onClick={onCenter} />
+      <ControlButton kind="left" letter="⬅️" onClick={onLeft} />
+      <ControlButton kind="right" letter="➡️" onClick={onRight} />
+      <ControlButton kind="up" letter="⬆️" onClick={onUp} />
+      <ControlButton kind="down" letter="⬇️" onClick={onDown} />
+      <ControlButton kind="center" letter="🟢" onClick={onCenter} />
+      <ControlButton kind="backspace" letter="⏮" onClick={onBackspace} />
     </div>
   );
 }
@@ -46,8 +42,8 @@ const LETTERS = [
   "ЭЮЯ.,".split(""),
 ];
 
-function DisplayText({text}) {
-  return <div className="display-text">{text}</div>;
+function DisplayText({ text }) {
+  return <div className="noselect display-text">{text}</div>;
 }
 
 const MODES = {
@@ -191,33 +187,41 @@ class App extends React.Component {
 
   onLeft = () => {
     this.moveDelta(-1, 0);
-  }
+  };
 
   onRight = () => {
     this.moveDelta(1, 0);
-  }
+  };
 
   onUp = () => {
     this.moveDelta(0, -1);
-  }
+  };
 
   onDown = () => {
     this.moveDelta(0, 1);
-  }
+  };
 
   onCenter = () => {
     this.action();
-  }
+  };
+
+  onBackspace = () => {
+    this.backspace();
+  };
 
   render() {
     return (
       <div className="App">
         <div className="letters-container">{this.renderLetters()}</div>
         <DisplayText text={this.state.inputText} />
-        <Controller onLeft={this.onLeft} onRight={this.onRight} onCenter={this.onCenter} onUp={this.onUp} onDown={this.onDown} />
-        <div>
-          Current row={this.state.selectedRow}, col={this.state.selectedCol}
-        </div>
+        <Controller
+          onLeft={this.onLeft}
+          onRight={this.onRight}
+          onCenter={this.onCenter}
+          onUp={this.onUp}
+          onDown={this.onDown}
+          onBackspace={this.onBackspace}
+        />
       </div>
     );
   }
