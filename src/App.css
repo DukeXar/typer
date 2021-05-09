@@ -39,54 +39,58 @@
 }
 
 .display-text {
-  font-size: 44px;
+  font-size: 48px;
   margin: 16px;
   border: 1px dotted grey;
   height: 56px;
 }
 
+.display-text-placeholder {
+  color:  grey;
+}
+
 .controller {
   border: 1px dotted black;
-  height: calc(44px * 3 + 8px);
-  width: calc(44px * 4 + 8px);
+  height: calc(48px * 3 + 8px);
+  width: calc(48px * 4 + 8px);
   margin: 16px;
   position: relative;
 }
 
 .control-button {
-  height: 44px;
-  width: 44px;
+  height: 48px;
+  width: 48px;
   text-align: center;
   padding: 4px;
 }
 .control-button-up {
   position: absolute;
-  left: 44px;
+  left: 48px;
   top: 0px;
 }
 .control-button-down {
   position: absolute;
-  left: 44px;
-  top: calc(44px * 2);
+  left: 48px;
+  top: calc(48px * 2);
 }
 .control-button-left {
   position: absolute;
   left: 0px;
-  top: 44px;
+  top: 48px;
 }
 .control-button-right {
   position: absolute;
-  left: calc(44px * 2);
-  top: 44px;
+  left: calc(48px * 2);
+  top: 48px;
 }
 .control-button-center {
   position: absolute;
-  left: calc(44px * 3);
-  top: calc(44px * 2);
+  left: calc(48px * 1);
+  top: calc(48px * 1);
 }
 .control-button-backspace {
   position: absolute;
-  left: calc(44px * 3);
+  left: calc(48px * 3);
   top: 0px;
 }
 .noselect {

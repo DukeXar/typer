@@ -43,7 +43,12 @@ const LETTERS = [
 ];
 
 function DisplayText({ text }) {
-  return <div className="noselect display-text">{text}</div>;
+  const placeholder = (text ?? "").length == 0;
+  const placeholderText = "Здесь будет текст";
+  const cls = classNames("noselect", "display-text", {
+    "display-text-placeholder": placeholder,
+  });
+  return <div className={cls}>{placeholder ? placeholderText : text}</div>;
 }
 
 const MODES = {
@@ -212,8 +217,8 @@ class App extends React.Component {
   render() {
     return (
       <div className="App">
-        <div className="letters-container">{this.renderLetters()}</div>
         <DisplayText text={this.state.inputText} />
+        <div className="letters-container">{this.renderLetters()}</div>
         <Controller
           onLeft={this.onLeft}
           onRight={this.onRight}
