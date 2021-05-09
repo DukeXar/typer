@@ -1,23 +1,40 @@
 import "./App.css";
 import React from "react";
 
-class Cell extends React.Component {
-  render() {
-    return (
-      <div
-        className={
-          this.props.selected
-            ? "letters-cell letters-cell-selected"
-            : "letters-cell"
-        }
-      >
-        {this.props.letter}
-      </div>
-    );
-  }
+function Cell({selected, letter}) {
+  return (
+    <div
+      className={
+        selected
+          ? "letters-cell letters-cell-selected"
+          : "letters-cell"
+      }
+    >
+      {letter}
+    </div>
+  );
+
 }
 
-class Board extends React.Component {}
+function ControlButton({kind, onClick, letter}) {
+  return (
+    <div className={`control-button control-button-${kind}`}>
+      <button className="control-button-inner" onClick={onClick}>{letter}</button>
+    </div>
+  );
+}
+
+function Controller({onLeft, onRight, onUp, onDown, onCenter}) {
+  return (
+    <div className="controller">
+      <ControlButton kind="left" letter="L" onClick={onLeft} />
+      <ControlButton kind="right" letter="R" onClick={onRight} />
+      <ControlButton kind="up" letter="U" onClick={onUp} />
+      <ControlButton kind="down" letter="D" onClick={onDown} />
+      <ControlButton kind="center" letter="O" onClick={onCenter} />
+    </div>
+  );
+}
 
 const LETTERS = [
   "АБВГД".split(""),
@@ -29,10 +46,8 @@ const LETTERS = [
   "ЭЮЯ.,".split(""),
 ];
 
-class DisplayText extends React.Component {
-  render() {
-    return <div className="display-text">{this.props.text}</div>;
-  }
+function DisplayText({text}) {
+  return <div className="display-text">{text}</div>;
 }
 
 const MODES = {
@@ -84,16 +99,16 @@ class App extends React.Component {
   onKeyDown = (e) => {
     switch (e.code) {
       case "ArrowLeft":
-        this.moveDelta(-1, 0);
+        this.onLeft();
         break;
       case "ArrowUp":
-        this.moveDelta(0, -1);
+        this.onUp();
         break;
       case "ArrowDown":
-        this.moveDelta(0, 1);
+        this.onDown();
         break;
       case "ArrowRight":
-        this.moveDelta(1, 0);
+        this.onRight();
         break;
       case "Enter":
         this.action();
@@ -116,9 +131,8 @@ class App extends React.Component {
       let stateUpdate = { mode };
 
       if (state.mode === MODES.SELECTING_COL) {
-        const currentLetter = state.letters[state.selectedRow][
-          state.selectedCol
-        ];
+        const currentLetter =
+          state.letters[state.selectedRow][state.selectedCol];
         stateUpdate.inputText = state.inputText + currentLetter;
         stateUpdate.selectedCol = 0;
         stateUpdate.selectedRow = 0;
@@ -157,7 +171,7 @@ class App extends React.Component {
         return {
           mode: MODES.SELECTING_ROW,
           selectedCol: 0,
-        }
+        };
       }
       if (state.mode === MODES.SELECTING_COL) {
         dRow = 0;
@@ -175,11 +189,32 @@ class App extends React.Component {
     });
   }
 
+  onLeft = () => {
+    this.moveDelta(-1, 0);
+  }
+
+  onRight = () => {
+    this.moveDelta(1, 0);
+  }
+
+  onUp = () => {
+    this.moveDelta(0, -1);
+  }
+
+  onDown = () => {
+    this.moveDelta(0, 1);
+  }
+
+  onCenter = () => {
+    this.action();
+  }
+
   render() {
     return (
       <div className="App">
         <div className="letters-container">{this.renderLetters()}</div>
         <DisplayText text={this.state.inputText} />
+        <Controller onLeft={this.onLeft} onRight={this.onRight} onCenter={this.onCenter} onUp={this.onUp} onDown={this.onDown} />
         <div>
           Current row={this.state.selectedRow}, col={this.state.selectedCol}
         </div>
