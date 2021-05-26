@@ -1,13 +1,21 @@
 import "./App.css";
-import React from "react";
+import React, { createRef, useRef } from "react";
 import classNames from "classnames";
 
-function Cell({ selected, letter }) {
+const Cell = React.forwardRef(({ selected, letter, isScroller }, ref) => {
   const cls = classNames("noselect", "letters-cell", {
     "letters-cell-selected": selected,
+    "letters-cell-scroller": isScroller,
   });
-  return <div className={cls}>{letter}</div>;
-}
+  if (isScroller) {
+    return <div className={cls}></div>;
+  }
+  return (
+    <div className={cls} ref={ref}>
+      {letter}
+    </div>
+  );
+});
 
 function ControlButton({ kind, onClick, letter }) {
   return (
@@ -15,6 +23,137 @@ function ControlButton({ kind, onClick, letter }) {
       <button className="noselect control-button-inner" onClick={onClick}>
         {letter}
       </button>
+    </div>
+  );
+}
+
+function Board({
+  letters,
+  selectedCol,
+  selectedRow,
+  mode,
+  onSelectRow,
+  onSelectRowAndCol,
+}) {
+  const rowRefs = useRef([]);
+  const colRefs = useRef([]);
+  const rowsCount = letters.length;
+  const colsCount = letters[0].length;
+  rowRefs.current = [...Array(rowsCount).keys()].map(
+    (_, idx) => rowRefs.current[idx] ?? createRef()
+  );
+  colRefs.current = [...Array(colsCount).keys()].map(
+    (_, idx) => colRefs.current[idx] ?? createRef()
+  );
+
+  function findRowIdx(lastTouch) {
+    for (let idx = 0; idx < rowRefs.current.length; idx++) {
+      const el = rowRefs.current[idx].current;
+      const extraShift = el.offsetHeight;
+      const top = el.offsetTop + extraShift;
+      const bottom = el.offsetTop + el.offsetHeight + extraShift;
+      if (top <= lastTouch.clientY && lastTouch.clientY <= bottom) {
+        return idx;
+      }
+    }
+    return null;
+  }
+
+  function findColIdx(lastTouch) {
+    for (let idx = 0; idx < colRefs.current.length; idx++) {
+      const el = colRefs.current[idx].current;
+      // const extraShift = el.offsetWidth;
+      const left = el.offsetLeft;
+      const right = el.offsetLeft + el.offsetWidth;
+      if (left <= lastTouch.clientX && lastTouch.clientX <= right) {
+        return idx;
+      }
+    }
+    return null;
+  }
+
+  function handleRowTouch(lastTouch, isTouchEnd) {
+    const currentRowIdx = findRowIdx(lastTouch);
+    const currentColIdx = findColIdx(lastTouch);
+    if (currentColIdx != null && currentRowIdx != null) {
+      onSelectRowAndCol(currentRowIdx, currentColIdx, isTouchEnd);
+    } else if (currentRowIdx != null) {
+      onSelectRow(currentRowIdx);
+    }
+  }
+
+  function handleTouchStart(ev) {
+    handleRowTouch(ev.changedTouches[0]);
+  }
+
+  function handleTouchMove(ev) {
+    handleRowTouch(ev.changedTouches[0]);
+  }
+
+  function handleTouchEnd(ev) {
+    handleRowTouch(ev.changedTouches[0], true);
+  }
+
+  const V_SCROLLER = "=";
+  const H_SCROLLER = "&";
+  let lettersWithPlaceholders = letters.map((row, rowIdx) =>
+    rowIdx === 0 ? [V_SCROLLER, ...row] : [V_SCROLLER, ...row]
+  );
+  lettersWithPlaceholders.push([
+    V_SCROLLER,
+    ...[...Array(colsCount).keys()].map(() => H_SCROLLER),
+  ]);
+
+  const content = lettersWithPlaceholders.map((row, rowIdx) => {
+    return (
+      <div
+        className={"letters-row"}
+        key={rowIdx.toString()}
+        ref={rowRefs.current[rowIdx]}
+      >
+        {row.map((letter, colIdx) => {
+          const isVScroller = letter === V_SCROLLER;
+          const isHScroller = letter === H_SCROLLER;
+
+          // First column is V_SCROLLER, so real column index is one less.
+          const colSelected = selectedCol === colIdx - 1;
+          // For V_SCROLLER cell, highlight one below selected.
+          const rowSelected = isVScroller
+            ? selectedRow === rowIdx - 1
+            : selectedRow === rowIdx;
+
+          let cellSelected = false;
+          if (mode === MODES.SELECTING_ROW) {
+            cellSelected = rowSelected;
+          } else {
+            cellSelected = rowSelected && colSelected;
+          }
+
+          return (
+            <Cell
+              selected={cellSelected}
+              isScroller={isVScroller || isHScroller}
+              letter={letter}
+              key={colIdx.toString()}
+              ref={
+                // Store references for first row only, excluding V_SCROLLER column.
+                rowIdx === 0 && colIdx > 0 ? colRefs.current[colIdx - 1] : null
+              }
+            />
+          );
+        })}
+      </div>
+    );
+  });
+
+  return (
+    <div
+      className="letters-container"
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      onTouchEnd={handleTouchEnd}
+    >
+      {content}
     </div>
   );
 }
@@ -43,7 +182,7 @@ const LETTERS = [
 ];
 
 function DisplayText({ text }) {
-  const placeholder = (text ?? "").length == 0;
+  const placeholder = (text ?? "").length === 0;
   const placeholderText = "Здесь будет текст";
   const cls = classNames("noselect", "display-text", {
     "display-text-placeholder": placeholder,
@@ -66,27 +205,6 @@ class App extends React.Component {
       inputText: "",
       mode: MODES.SELECTING_ROW,
     };
-  }
-
-  renderLetters() {
-    return this.state.letters.map((row, rowIdx) => {
-      return (
-        <div className={"letters-row"}>
-          {row.map((letter, colIdx) => {
-            const colSelected = this.state.selectedCol === colIdx;
-            const rowSelected = this.state.selectedRow === rowIdx;
-
-            let cellSelected = false;
-            if (this.state.mode === MODES.SELECTING_ROW) {
-              cellSelected = rowSelected;
-            } else {
-              cellSelected = rowSelected && colSelected;
-            }
-            return <Cell selected={cellSelected} letter={letter} />;
-          })}
-        </div>
-      );
-    });
   }
 
   componentDidMount() {
@@ -120,6 +238,44 @@ class App extends React.Component {
       default:
         console.log(`Handling key code="${e.code}"`);
     }
+  };
+
+  onSelectRow = (rowIdx) => {
+    this.setState((state) => {
+      const maxRow = state.letters.length - 1;
+      const tryRow = Math.min(Math.max(0, rowIdx), maxRow);
+      return {
+        mode: MODES.SELECTING_ROW,
+        selectedCol: state.selectedCol,
+        selectedRow: tryRow,
+      };
+    });
+  };
+
+  onSelectRowAndCol = (rowIdx, colIdx, isTouchEnd) => {
+    this.setState((state) => {
+      const maxRow = state.letters.length - 1;
+      const maxCol = state.letters[state.selectedRow].length - 1;
+      const tryCol = Math.min(Math.max(0, colIdx), maxCol);
+      const tryRow = Math.min(Math.max(0, rowIdx), maxRow);
+
+      if (isTouchEnd) {
+        const currentLetter =
+          state.letters[state.selectedRow][state.selectedCol];
+        return {
+          mode: MODES.SELECTING_ROW,
+          selectedCol: tryCol,
+          selectedRow: tryRow,
+          inputText: state.inputText + currentLetter,
+        };
+      }
+
+      return {
+        mode: MODES.SELECTING_COL,
+        selectedCol: tryCol,
+        selectedRow: tryRow,
+      };
+    });
   };
 
   action() {
@@ -218,7 +374,14 @@ class App extends React.Component {
     return (
       <div className="App">
         <DisplayText text={this.state.inputText} />
-        <div className="letters-container">{this.renderLetters()}</div>
+        <Board
+          letters={this.state.letters}
+          selectedCol={this.state.selectedCol}
+          selectedRow={this.state.selectedRow}
+          mode={this.state.mode}
+          onSelectRow={this.onSelectRow}
+          onSelectRowAndCol={this.onSelectRowAndCol}
+        />
         <Controller
           onLeft={this.onLeft}
           onRight={this.onRight}
